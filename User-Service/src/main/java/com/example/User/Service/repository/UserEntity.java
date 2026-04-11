@@ -27,23 +27,23 @@ public class UserEntity {
 
     @NotBlank
     @Length( max = 50)
-    @Column(name = "Name")
+    @Column(name = "name", nullable = false, length = 50)
     private String name;
 
     @NotBlank
     @Length( max = 50)
-    @Column(name = "Username")
+    @Column(name = "username", nullable = false, length = 50, unique = true)
     private String username;
 
     @NotBlank
-    @Column(name = "Email")
+    @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
     @NotNull
-    @Column(name = "Date")
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateofbirth;
 
-    @Column(name = "Password")
+    @Column(name = "password", nullable = false, length = 150)
     @Length(max = 150)
     private String password;
 

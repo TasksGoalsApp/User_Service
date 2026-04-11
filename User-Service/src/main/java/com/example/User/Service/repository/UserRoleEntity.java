@@ -16,7 +16,7 @@ public class UserRoleEntity {
     private Long id;
 
     @NotNull
-    @Column(name = "User_Role")
+    @Column(name = "user_role", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private Role role;
 

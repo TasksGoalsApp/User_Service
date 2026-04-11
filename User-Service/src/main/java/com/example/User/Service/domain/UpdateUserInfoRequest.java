@@ -23,7 +23,7 @@ public class UpdateUserInfoRequest {
     private String username;
     @NotBlank
     private String email;
-    @NotBlank
+    @NotNull
     private LocalDate dateOfBirth;
 
 }
