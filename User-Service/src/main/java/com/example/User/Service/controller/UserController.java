@@ -3,6 +3,7 @@ package com.example.User.Service.controller;
 import com.example.User.Service.business.*;
 import com.example.User.Service.domain.*;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -28,9 +29,9 @@ public class UserController {
     private IGetUser getUser;
     @Autowired
     private IUpdateUserInfo updateUserInfo;
-//    @Autowired
-//    private ILogin login;
-//
+    @Autowired
+    private ILogin login;
+
 
     @PostMapping("/register")
     @PermitAll
@@ -49,7 +50,7 @@ public class UserController {
     }
 
 
-//    @RolesAllowed({"Customer"})
+    @RolesAllowed({"Customer"})
     @GetMapping("{id}")
     public ResponseEntity<User> getUserById(@PathVariable(value = "id") final long userid){
         Optional<User> user = getUser.getUserById(userid);
@@ -60,6 +61,12 @@ public class UserController {
     public ResponseEntity<UpdateUserInfoResponse> updateUserInfo(@RequestBody @Valid UpdateUserInfoRequest request){
         UpdateUserInfoResponse response = updateUserInfo.updateUserInfo(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest req) {
+        LoginResponse resp = login.login(req);
+        return ResponseEntity.ok(resp);
     }
 
 
