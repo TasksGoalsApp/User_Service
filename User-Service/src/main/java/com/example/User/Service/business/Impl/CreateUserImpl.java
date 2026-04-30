@@ -43,7 +43,7 @@ public class CreateUserImpl implements ICreateUser {
                 .build();
 
         UserRoleEntity role = UserRoleEntity.builder()
-                .role(Role.Admin)   // or Role.USER
+                .role(Role.Customer)   // or Role.USER
                 .user(user)            // link back
                 .build();
 

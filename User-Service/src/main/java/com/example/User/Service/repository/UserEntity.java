@@ -49,4 +49,5 @@ public class UserEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserRoleEntity role;
+
 }

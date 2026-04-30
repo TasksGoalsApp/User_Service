@@ -22,6 +22,8 @@ public class UserRoleEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UserEntity user;
 
 }

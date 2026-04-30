@@ -64,6 +64,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
+    @PermitAll
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest req) {
         LoginResponse resp = login.login(req);
         return ResponseEntity.ok(resp);
