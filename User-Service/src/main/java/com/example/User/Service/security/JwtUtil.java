@@ -8,6 +8,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -29,7 +30,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("id", userId)
-                .claim("role", role)   // ← embed the ID
+                .claim("roles", List.of(role))   // ← embed user role
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationMs))
                 .signWith(signingKey(), SignatureAlgorithm.HS256)

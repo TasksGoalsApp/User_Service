@@ -18,6 +18,6 @@ public class User {
     private String username;
     private String email;
     private LocalDate dateofbirth;
-    @JsonIgnore
-    private String password;
+//    @JsonIgnore
+//    private String password;
 }

@@ -3,6 +3,7 @@ package com.example.User.Service.business.Impl;
 import com.example.User.Service.business.IUpdateUserInfo;
 import com.example.User.Service.domain.UpdateUserInfoRequest;
 import com.example.User.Service.domain.UpdateUserInfoResponse;
+import com.example.User.Service.exception.ResourceNotFoundException;
 import com.example.User.Service.repository.UserEntity;
 import com.example.User.Service.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -16,14 +17,14 @@ public class UpdateUserInfoImpl implements IUpdateUserInfo {
 
     private final UserRepository userRepository;
     @Override
-    public UpdateUserInfoResponse updateUserInfo(UpdateUserInfoRequest request) {
+    public UpdateUserInfoResponse updateUserInfo(UpdateUserInfoRequest request, long userId) {
         Optional<UserEntity> userEntityUsername= userRepository.findByUsername(request.getUsername());
-        if (userEntityUsername.isPresent() && !userEntityUsername.get().getId().equals(request.getId())) {
+        if (userEntityUsername.isPresent() && !userEntityUsername.get().getId().equals(userId)) {
 
             throw new IllegalArgumentException("Username '" + request.getUsername() + "' is already in use");
         }
-        UserEntity userEntity = userRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + request.getId()));
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
 
         userEntity.setName(request.getName());
         userEntity.setDateofbirth(request.getDateOfBirth());

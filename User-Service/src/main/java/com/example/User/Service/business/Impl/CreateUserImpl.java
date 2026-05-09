@@ -23,6 +23,11 @@ public class CreateUserImpl implements ICreateUser {
         if (userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username '" + userRequest.getUsername() + "' is already in use");
         }
+        if(userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new IllegalArgumentException("Email is already in use");
+        }
+
+
 
         UserEntity userEntity = saveNewUser(userRequest);
         return CreateUserResponse.builder()
@@ -43,7 +48,7 @@ public class CreateUserImpl implements ICreateUser {
                 .build();
 
         UserRoleEntity role = UserRoleEntity.builder()
-                .role(Role.Customer)   // or Role.USER
+                .role(Role.CUSTOMER)   // or Role.USER
                 .user(user)            // link back
                 .build();
 

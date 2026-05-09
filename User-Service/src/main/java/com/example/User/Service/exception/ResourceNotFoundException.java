@@ -1,6 +1,4 @@
-package com.example.User.Service.business.Impl;
-
-import org.jetbrains.annotations.NotNull;
+package com.example.User.Service.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String msg) {

@@ -12,7 +12,6 @@ public class UserConverter {
                 .name(userEntity.getName())
                 .username(userEntity.getUsername())
                 .dateofbirth(userEntity.getDateofbirth())
-                .password(userEntity.getPassword())
                 .build();
     }
 }
