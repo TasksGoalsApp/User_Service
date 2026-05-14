@@ -39,7 +39,7 @@ public class JwtUtil {
 
 
     public String extractUsername(String token) {
-        return Jwts.parserBuilder()
+        return Jwts.parser()
                 .setSigningKey(signingKey())
                 .build()
                 .parseClaimsJws(token)
@@ -57,7 +57,7 @@ public class JwtUtil {
     }
 
     private boolean isTokenExpired(String token) {
-        Date exp = Jwts.parserBuilder()
+        Date exp = Jwts.parser()
                 .setSigningKey(signingKey())
                 .build()
                 .parseClaimsJws(token)
