@@ -2,6 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.16'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
+	id 'org.sonarqube' version '7.3.1.8318'
 }
 
 group = 'com.example'
@@ -11,6 +13,27 @@ description = 'Demo project for Spring Boot'
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+jacoco {
+	toolVersion = '0.8.13'
+}
+
+sonar {
+	properties {
+		property "sonar.projectKey", "TasksGoalsApp_User_Service"
+		property "sonar.organization", "tasksgoalsapp"
+
+		property 'sonar.coverage.jacoco.xmlReportPaths',
+				'build/reports/jacoco/test/jacocoTestReport.xml'
+
+		property 'sonar.coverage.exclusions', [
+				'**/config/**',
+				'**/domain/Request/**',
+				'**/domain/Response/**',
+				'**/*Application.java'
+		].join(',')
 	}
 }
 
@@ -58,4 +81,14 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+	dependsOn test
+
+	reports {
+		xml.required = true
+		html.required = true
+		csv.required = false
+	}
 }
