@@ -36,7 +36,7 @@ public class LoginImpl implements ILogin {
         if(!matchPassword(request.getPassword(), user.getPassword())){
             throw new BadCredentialsException("Bad credentials");
         }
-        String roleName = user.getRole().toString();
+        String roleName = user.getRole().getRole().name();
 
 
         authenticationManager.authenticate(

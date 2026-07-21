@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class CreateUserImpl implements ICreateUser {
     private final UserRepository userRepository;
-    private final UserRoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
 
     @Transactional

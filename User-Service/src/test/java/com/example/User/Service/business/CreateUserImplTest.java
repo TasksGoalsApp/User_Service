@@ -27,9 +27,6 @@ public class CreateUserImplTest {
     private UserRepository userRepository;
 
     @Mock
-    private UserRoleRepository userRoleRepository;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
 
     private CreateUserImpl createUser;
@@ -40,7 +37,6 @@ public class CreateUserImplTest {
     void setUp() {
         createUser = new CreateUserImpl(
                 userRepository,
-                userRoleRepository,
                 passwordEncoder
         );
 

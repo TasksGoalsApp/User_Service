@@ -23,6 +23,13 @@ public class UpdateUserInfoImpl implements IUpdateUserInfo {
 
             throw new IllegalArgumentException("Username '" + request.getUsername() + "' is already in use");
         }
+        Optional<UserEntity> userEntityEmail = userRepository.findByEmail(request.getEmail());
+
+        if (userEntityEmail.isPresent() && !userEntityEmail.get().getId().equals(userId)) {
+            throw new IllegalArgumentException("Email is already in use");
+        }
+
+
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
 
