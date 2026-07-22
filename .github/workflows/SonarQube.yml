@@ -30,12 +30,22 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-      - name: Build and analyze
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Run tests and generate JaCoCo coverage
+        run: ./gradlew clean test jacocoTestReport
+
+      - name: Verify JaCoCo coverage report
+        run: |
+          ls -la build/reports/jacoco/test
+          test -f build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Run SonarQube analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          cd User-Service
-          chmod +x ./gradlew
-            ./gradlew clean build test jacocoTestReport
-          # Run SonarQube analysis, specifying the JaCoCo report path
-          ./gradlew sonar --info -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTest
+        run: >
+          ./gradlew sonar
+          --info
+          -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+          -Dsonar.qualitygate.wait=true
