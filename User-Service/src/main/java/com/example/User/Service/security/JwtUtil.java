@@ -29,7 +29,7 @@ public class JwtUtil {
         long now = System.currentTimeMillis();
         return Jwts.builder()
                 .setSubject(username)
-                .claim("id", userId)
+                .claim("userId", userId)
                 .claim("roles", List.of(role))   // ← embed user role
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationMs))

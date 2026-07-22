@@ -1,6 +1,5 @@
-package com.example.User.Service.business;
+package com.example.User.Service.business.Impl;
 
-import com.example.User.Service.business.Impl.LoginImpl;
 import com.example.User.Service.domain.LoginRequest;
 import com.example.User.Service.domain.LoginResponse;
 import com.example.User.Service.repository.Role;
@@ -13,13 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.ArgumentCaptor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDate;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -61,9 +57,11 @@ public class LoginImplTest {
                 jwtUtil
         );
 
-        request = new LoginRequest();
-        request.setUsername(USERNAME);
-        request.setPassword(RAW_PASSWORD);
+        this.request = LoginRequest.builder()
+                .username(USERNAME)
+                .password(RAW_PASSWORD)
+                .build();
+
 
         user = UserEntity.builder()
                 .id(USER_ID)

@@ -1,7 +1,8 @@
 package com.example.User.Service.domain;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
-
+@Builder
 @Data
 public class LoginRequest {
     @NotBlank

@@ -1,6 +1,5 @@
-package com.example.User.Service.business;
+package com.example.User.Service.business.Impl;
 
-import com.example.User.Service.business.Impl.DeleteUserImpl;
 import com.example.User.Service.exception.ResourceNotFoundException;
 import com.example.User.Service.repository.UserEntity;
 import com.example.User.Service.repository.UserRepository;
@@ -9,9 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;

@@ -19,20 +19,19 @@ import java.util.Optional;
 
 @CrossOrigin(origins = "*")
 @AllArgsConstructor
-@NoArgsConstructor
 @RequestMapping("/user")
 @RestController
 public class UserController {
-    @Autowired
-    private ICreateUser createUser;
-    @Autowired
-    private IDeleteUser deleteUser;
-    @Autowired
-    private IGetUser getUser;
-    @Autowired
-    private IUpdateUserInfo updateUserInfo;
-    @Autowired
-    private ILogin login;
+
+    private final ICreateUser createUser;
+
+    private final IDeleteUser deleteUser;
+
+    private final IGetUser getUser;
+
+    private final IUpdateUserInfo updateUserInfo;
+
+    private final ILogin login;
 
 
     @PostMapping("/register")
@@ -47,7 +46,7 @@ public class UserController {
     @RolesAllowed({"CUSTOMER"})
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal Jwt jwt) {
-        Long userId = jwt.getClaim("id");
+        Long userId = jwt.getClaim("userId");
         deleteUser.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
@@ -56,7 +55,7 @@ public class UserController {
     @RolesAllowed({"CUSTOMER", "ADMIN"})
     @GetMapping("/me")
     public ResponseEntity<User> getUserById(@AuthenticationPrincipal Jwt jwt){
-        Long userId = jwt.getClaim("id");
+        Long userId = jwt.getClaim("userId");
         Optional<User> user = getUser.getUserById(userId);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -74,7 +73,7 @@ public class UserController {
     @RolesAllowed({"CUSTOMER", "ADMIN"})
     @PutMapping("/update")
     public ResponseEntity<UpdateUserInfoResponse> updateUserInfo(@RequestBody @Valid UpdateUserInfoRequest request, @AuthenticationPrincipal Jwt jwt){
-        Long userId = jwt.getClaim("id");
+        Long userId = jwt.getClaim("userId");
         UpdateUserInfoResponse response = updateUserInfo.updateUserInfo(request, userId);
         return ResponseEntity.ok(response);
     }

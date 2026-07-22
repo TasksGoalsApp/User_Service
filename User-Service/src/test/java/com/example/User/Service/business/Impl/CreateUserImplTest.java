@@ -1,12 +1,10 @@
-package com.example.User.Service.business;
+package com.example.User.Service.business.Impl;
 
-import com.example.User.Service.business.Impl.CreateUserImpl;
 import com.example.User.Service.domain.CreateUserRequest;
 import com.example.User.Service.domain.CreateUserResponse;
 import com.example.User.Service.repository.Role;
 import com.example.User.Service.repository.UserEntity;
 import com.example.User.Service.repository.UserRepository;
-import com.example.User.Service.repository.UserRoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

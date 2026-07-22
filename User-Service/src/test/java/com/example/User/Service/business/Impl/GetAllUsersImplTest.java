@@ -1,6 +1,5 @@
-package com.example.User.Service.business;
+package com.example.User.Service.business.Impl;
 
-import com.example.User.Service.business.Impl.GetAllUsersImpl;
 import com.example.User.Service.domain.GetAllUsersResponse;
 import com.example.User.Service.domain.User;
 import com.example.User.Service.repository.UserEntity;
@@ -10,10 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

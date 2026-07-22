@@ -1,6 +1,5 @@
-package com.example.User.Service.business;
+package com.example.User.Service.business.Impl;
 
-import com.example.User.Service.business.Impl.UpdateUserInfoImpl;
 import com.example.User.Service.domain.UpdateUserInfoRequest;
 import com.example.User.Service.domain.UpdateUserInfoResponse;
 import com.example.User.Service.exception.ResourceNotFoundException;
@@ -12,10 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.LocalDate;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.never;
+
 
 @ExtendWith(MockitoExtension.class)
 public class UpdateUserInfoImplTest {
