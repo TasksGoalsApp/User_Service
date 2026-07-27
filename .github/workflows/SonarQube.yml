@@ -38,7 +38,7 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('User-Service/**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('User-Service/**/*.gradle*', 'User-Service/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Make Gradle wrapper executable
