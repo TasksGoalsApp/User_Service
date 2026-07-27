@@ -24,8 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         // Extract the single UserRoleEntity from your UserEntity:
         UserRoleEntity userRole = user.getRole();  // <-- or getUserRole(), whatever your field is named
@@ -34,12 +33,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         String roleName = userRole.getRole().name();  // enum Role.Customer → "Customer"
 
         // Build one GrantedAuthority:
-        SimpleGrantedAuthority authority =
-                new SimpleGrantedAuthority("ROLE_" + roleName);
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + roleName);
 
         // Wrap it in a singleton list:
-        List<SimpleGrantedAuthority> authorities =
-                Collections.singletonList(authority);
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(authority);
 
         // Return the Spring Security User:
         return new org.springframework.security.core.userdetails.User(
