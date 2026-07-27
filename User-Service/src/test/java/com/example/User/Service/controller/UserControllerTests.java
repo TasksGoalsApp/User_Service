@@ -8,18 +8,26 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import java.util.Optional;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 
 
@@ -52,6 +60,8 @@ public class UserControllerTests {
 
     @MockitoBean
     private JwtUtil jwtUtil;
+    @Autowired
+    private UserController userController;
 
     @Test
     void shouldRegisterUserSuccessfully() throws Exception {
@@ -190,6 +200,147 @@ public class UserControllerTests {
                         "roles", java.util.List.of(role)
                 )
         );
+    }
+
+    @Test
+    void shouldReturnCurrentUserSuccessfully() {
+        Long userId = 1L;
+
+        User user = User.builder()
+                .id(userId)
+                .name("Hristo Kolev")
+                .username("hristo")
+                .email("hristo@example.com")
+                .dateofbirth(LocalDate.of(2000, 1, 1))
+                .build();
+
+        Jwt jwt = mock(Jwt.class);
+
+        when(jwt.getClaim("userId")).thenReturn(userId);
+
+        when(getUser.getUserById(userId)).thenReturn(Optional.of(user));
+
+        ResponseEntity<User> response = userController.getUserById(jwt);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(userId, response.getBody().getId());
+        assertEquals("Hristo Kolev", response.getBody().getName());
+        assertEquals("hristo", response.getBody().getUsername());
+        assertEquals("hristo@example.com", response.getBody().getEmail());
+
+        verify(jwt).getClaim("userId");
+        verify(getUser).getUserById(userId);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenCurrentUserDoesNotExist() {
+        Long userId = 999L;
+
+        Jwt jwt = mock(Jwt.class);
+
+        when(jwt.getClaim("userId")).thenReturn(userId);
+
+        when(getUser.getUserById(userId)).thenReturn(Optional.empty());
+
+        ResponseEntity<User> response = userController.getUserById(jwt);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+
+        verify(jwt).getClaim("userId");
+        verify(getUser).getUserById(userId);
+    }
+
+
+    // THIS IS THE DELETING USER TESTS!!!!!
+    //
+
+    @Test
+    void shouldDeleteUserSuccessfully() {
+        long userId = 1L;
+
+        Jwt jwt = mock(Jwt.class);
+
+        when(jwt.getClaim("userId")).thenReturn(userId);
+
+        ResponseEntity<Void> response = userController.deleteUser(jwt);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        verify(jwt).getClaim("userId");
+        verify(deleteUser).deleteUser(userId);
+    }
+
+    // THIS IS THE UPDATING USER INTO TESTS !!!!!
+
+    @Test
+    void shouldUpdateUserSuccessfully() {
+
+        long userId = 1L;
+
+        Jwt jwt = mock(Jwt.class);
+
+        when(jwt.getClaim("userId")).thenReturn(userId);
+
+        UpdateUserInfoRequest request = UpdateUserInfoRequest.builder()
+                        .name("New Name")
+                        .username("newUsername")
+                        .email("new@email.com")
+                        .dateOfBirth(LocalDate.of(2000,1,1))
+                        .build();
+
+        UpdateUserInfoResponse response = UpdateUserInfoResponse.builder()
+                .build();
+
+        when(updateUserInfo.updateUserInfo(request, userId)).thenReturn(response);
+
+        ResponseEntity<UpdateUserInfoResponse> result = userController.updateUserInfo(request, jwt);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(response, result.getBody());
+
+        verify(updateUserInfo).updateUserInfo(request, userId);
+    }
+
+    // ADMIN GETTING ALL THE USERS UNIT TESTS!!!!!!
+
+    @Test
+    void shouldReturnUserByIdForAdmin() {
+
+        long userId = 5L;
+
+        User user = User.builder()
+                .id(userId)
+                .name("Admin User")
+                .username("admin")
+                .email("admin@test.com")
+                .build();
+
+        when(getUser.getUserById(userId)).thenReturn(Optional.of(user));
+
+        ResponseEntity<User> response = userController.getUserById(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertNotNull(response.getBody());
+        assertEquals(userId, response.getBody().getId());
+
+        verify(getUser).getUserById(userId);
+    }
+
+    @Test
+    void shouldReturnNotFoundForAdminWhenUserDoesNotExist() {
+
+        long userId = 5L;
+
+        when(getUser.getUserById(userId)).thenReturn(Optional.empty());
+
+        ResponseEntity<User> response = userController.getUserById(userId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(getUser).getUserById(userId);
     }
 
 }
