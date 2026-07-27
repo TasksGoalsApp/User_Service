@@ -23,11 +23,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.util.Optional;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 
 
@@ -290,8 +287,7 @@ public class UserControllerTests {
                         .dateOfBirth(LocalDate.of(2000,1,1))
                         .build();
 
-        UpdateUserInfoResponse response = UpdateUserInfoResponse.builder()
-                .build();
+        UpdateUserInfoResponse response = UpdateUserInfoResponse.builder().build();
 
         when(updateUserInfo.updateUserInfo(request, userId)).thenReturn(response);
 
