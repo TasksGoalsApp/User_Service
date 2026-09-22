@@ -1,22 +1,25 @@
 package com.example.User.Service.security;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+
+import java.util.Base64;
+import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
-import javax.crypto.SecretKey;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 @Configuration
 public class JwtDecoderConfig {
-    @Value("${jwt.secret}")
-    private String base64Secret;
-
     @Bean
-    public JwtDecoder jwtDecoder() {
-        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
-        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
-        return NimbusJwtDecoder.withSecretKey(key).build();
+    public JwtDecoder jwtDecoder(@Value("${jwt.secret}") String secret,
+            @Value("${jwt.issuer}") String issuer, @Value("${jwt.audience}") String audience) {
+        byte[] bytes = Base64.getDecoder().decode(secret);
+        if (bytes.length < 32) throw new IllegalArgumentException("JWT_SECRET must contain at least 32 random bytes encoded as Base64");
+        var decoder = NimbusJwtDecoder.withSecretKey(new SecretKeySpec(bytes, "HmacSHA256"))
+                .macAlgorithm(MacAlgorithm.HS256).build();
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(issuer), new JwtContract(audience)));
+        return decoder;
     }
 }

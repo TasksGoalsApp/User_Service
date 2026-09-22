@@ -13,6 +13,17 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<?> handleAuthentication(org.springframework.security.core.AuthenticationException ex) {
+        return ResponseEntity.status(401).body(Map.of("status", 401, "message", "Invalid username or password"));
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<?> handleForbidden(org.springframework.security.access.AccessDeniedException ex) {
+        return ResponseEntity.status(403).body(Map.of("status", 403, "message", "Access denied"));
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

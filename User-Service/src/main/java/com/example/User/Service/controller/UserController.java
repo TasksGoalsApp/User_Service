@@ -1,4 +1,5 @@
 package com.example.User.Service.controller;
+import com.example.User.Service.security.JwtContract;
 
 import com.example.User.Service.business.*;
 import com.example.User.Service.domain.*;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 
-@CrossOrigin(origins = "*")
 @AllArgsConstructor
 @NoArgsConstructor
 @RequestMapping("/user")
@@ -47,7 +47,7 @@ public class UserController {
     @RolesAllowed({"CUSTOMER"})
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal Jwt jwt) {
-        Long userId = jwt.getClaim("id");
+        Long userId = JwtContract.userId(jwt);
         deleteUser.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
@@ -56,7 +56,7 @@ public class UserController {
     @RolesAllowed({"CUSTOMER", "ADMIN"})
     @GetMapping("/me")
     public ResponseEntity<User> getUserById(@AuthenticationPrincipal Jwt jwt){
-        Long userId = jwt.getClaim("id");
+        Long userId = JwtContract.userId(jwt);
         Optional<User> user = getUser.getUserById(userId);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -74,7 +74,7 @@ public class UserController {
     @RolesAllowed({"CUSTOMER", "ADMIN"})
     @PutMapping("/update")
     public ResponseEntity<UpdateUserInfoResponse> updateUserInfo(@RequestBody @Valid UpdateUserInfoRequest request, @AuthenticationPrincipal Jwt jwt){
-        Long userId = jwt.getClaim("id");
+        Long userId = JwtContract.userId(jwt);
         UpdateUserInfoResponse response = updateUserInfo.updateUserInfo(request, userId);
         return ResponseEntity.ok(response);
     }

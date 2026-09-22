@@ -1,81 +1,57 @@
 package com.example.User.Service.security;
+
+import java.util.Arrays;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-@EnableMethodSecurity
 @Configuration
+@EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
-
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration cfg = new CorsConfiguration();
-//        cfg.setAllowedOrigins(List.of("http://localhost:5173"));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("*"));
-        cfg.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
-        src.registerCorsConfiguration("/**", cfg);
-        return src;
-    }
-
-
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authConfig
-    ) throws Exception {
-        return authConfig.getAuthenticationManager();
+    public CorsConfigurationSource corsConfigurationSource(@Value("${app.cors.allowed-origins}") String origins) {
+        var cors = new CorsConfiguration();
+        cors.setAllowedOrigins(Arrays.stream(origins.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList());
+        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        cors.setAllowCredentials(false);
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cors);
+        return source;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        // allow both registration and login without a token
-                        .requestMatchers("/user/register", "/user/login").permitAll()
-                        // everything else needs a valid JWT
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        )
-                );
-
-        return http.build();
-    }
-
-    private JwtAuthenticationConverter jwtAuthenticationConverter() {
+        var authorities = new JwtGrantedAuthoritiesConverter();
+        authorities.setAuthoritiesClaimName("roles");
+        authorities.setAuthorityPrefix("ROLE_");
         var converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(this::extractAuthorities);
-        return converter;
+        converter.setJwtGrantedAuthoritiesConverter(authorities);
+        return http.cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/login", "/user/register").permitAll()
+                        .anyRequest().authenticated())
+                .oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt.jwtAuthenticationConverter(converter)))
+                .build();
     }
 
-    private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        var roles = jwt.getClaimAsStringList("roles");
-        return roles == null
-                ? java.util.List.of()
-                : roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
-                .collect(Collectors.toList());
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }

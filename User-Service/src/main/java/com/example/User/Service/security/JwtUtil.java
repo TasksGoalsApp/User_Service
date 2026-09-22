@@ -1,69 +1,39 @@
 package com.example.User.Service.security;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import javax.crypto.SecretKey;
 
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import javax.crypto.SecretKey;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
+    private final SecretKey key;
+    private final long expirationMs;
+    private final String issuer;
+    private final String audience;
 
-    @Value("${jwt.secret}")
-    private String base64Secret;
-
-    @Getter
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
-
-    private SecretKey signingKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+    public JwtUtil(@Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration-ms}") long expirationMs,
+            @Value("${jwt.issuer}") String issuer, @Value("${jwt.audience}") String audience) {
+        if (expirationMs < 1000) throw new IllegalArgumentException("JWT expiration must be at least one second");
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        this.expirationMs = expirationMs;
+        this.issuer = issuer;
+        this.audience = audience;
     }
+
+    public long getExpiresInSeconds() { return expirationMs / 1000; }
 
     public String generateToken(String username, Long userId, String role) {
-        long now = System.currentTimeMillis();
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("id", userId)
-                .claim("roles", List.of(role))   // ← embed user role
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + expirationMs))
-                .signWith(signingKey(), SignatureAlgorithm.HS256)
-                .compact();
+        Instant now = Instant.now();
+        return Jwts.builder().subject(username).issuer(issuer).audience().add(audience).and()
+                .claim("id", userId).claim("roles", List.of(role))
+                .issuedAt(Date.from(now)).expiration(Date.from(now.plusSeconds(getExpiresInSeconds())))
+                .signWith(key, Jwts.SIG.HS256).compact();
     }
-
-
-    public String extractUsername(String token) {
-        return Jwts.parser()
-                .setSigningKey(signingKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    public boolean validateToken(String token,
-                                 org.springframework.security.core.userdetails.UserDetails userDetails) {
-        try{
-            String user = extractUsername(token);
-            return user.equals(userDetails.getUsername()) && !isTokenExpired(token);
-        }catch(Exception e){return false;}
-
-    }
-
-    private boolean isTokenExpired(String token) {
-        Date exp = Jwts.parser()
-                .setSigningKey(signingKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-        return exp.before(new Date());
-    }
-
 }
